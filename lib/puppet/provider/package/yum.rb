@@ -7,10 +7,6 @@ Puppet::Type.type(:package).provide :yum, :parent => :rpm, :source => :rpm do
     
     YUMHELPER = File::join(File::dirname(__FILE__), "yumhelper.py")
 
-    class << self
-        attr_reader :updates
-    end
-
     if command('rpm')
         confine :true => begin
                 rpm('--version')
@@ -24,11 +20,14 @@ Puppet::Type.type(:package).provide :yum, :parent => :rpm, :source => :rpm do
     defaultfor :operatingsystem => [:fedora, :centos, :redhat]
 
     def self.prefetch(packages)
-        @updates = {}
         if Process.euid != 0
             raise Puppet::Error, "The yum provider can only be used as root"
         end
         super
+    end
+
+    def self.fetch_yumlatest
+        @updates = {}
         python(YUMHELPER).each_line do |l|
             l.chomp!
             next if l.empty?
@@ -40,6 +39,11 @@ Puppet::Type.type(:package).provide :yum, :parent => :rpm, :source => :rpm do
                 end
             end
         end
+    end
+
+    def self.updates
+      self.fetch_yumlatest unless defined? @updates  
+      @updates
     end
 
     def install
