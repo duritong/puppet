@@ -51,8 +51,8 @@ done
 # Fix some rpmlint complaints
 for f in mac_dscl.pp mac_dscl_revert.pp \
          mac_netinfo.pp mac_pkgdmg.pp ; do
-  sed -i -e'1d' examples/code/$f
-  chmod a-x examples/code/$f
+  sed -i -e'1d' examples/$f
+  chmod a-x examples/$f
 done
 
 find examples/ -type f -empty | xargs rm
@@ -65,6 +65,7 @@ install -d -m0755 %{buildroot}%{_bindir}
 install -d -m0755 %{buildroot}%{ruby_sitelibdir}
 install -d -m0755 %{buildroot}%{_sysconfdir}/puppet/manifests
 install -d -m0755 %{buildroot}%{_docdir}/%{name}-%{version}
+install -d -m0755 %{buildroot}%{_mandir}/man8
 install -d -m0755 %{buildroot}%{_localstatedir}/lib/puppet
 install -d -m0755 %{buildroot}%{_localstatedir}/run/puppet
 install -d -m0755 %{buildroot}%{_localstatedir}/log/puppet
@@ -84,6 +85,7 @@ install -Dp -m0755 %{confdir}/server.init %{buildroot}%{_initrddir}/puppetmaster
 install -Dp -m0644 %{confdir}/fileserver.conf %{buildroot}%{_sysconfdir}/puppet/fileserver.conf
 install -Dp -m0644 %{confdir}/puppet.conf %{buildroot}%{_sysconfdir}/puppet/puppet.conf
 install -Dp -m0644 %{confdir}/logrotate %{buildroot}%{_sysconfdir}/logrotate.d/puppet
+install -Dp -m0644 man/man8/* %{buildroot}%{_mandir}/man8
 # We need something for these ghosted files, otherwise rpmbuild
 # will complain loudly. They won't be included in the binary packages
 touch %{buildroot}%{_sysconfdir}/puppet/puppetmasterd.conf
@@ -98,6 +100,7 @@ touch %{buildroot}%{_sysconfdir}/puppet/puppetd.conf
 %{_bindir}/puppetdoc
 %exclude %{_mandir}/man8/pi.8.gz
 %{_sbindir}/puppetd
+%exclude %{_sbindir}/pi
 %{ruby_sitelibdir}/*
 %{_initrddir}/puppet
 %dir %{_sysconfdir}/puppet
@@ -128,6 +131,10 @@ touch %{buildroot}%{_sysconfdir}/puppet/puppetd.conf
 %ghost %config(noreplace,missingok) %{_sysconfdir}/puppet/puppetca.conf
 %ghost %config(noreplace,missingok) %{_sysconfdir}/puppet/puppetmasterd.conf
 %{_sbindir}/puppetca
+%doc %{_mandir}/man8/filebucket.8.gz
+%doc %{_mandir}/man8/puppetca.8.gz
+%doc %{_mandir}/man8/puppetmasterd.8.gz
+%doc %{_mandir}/man8/puppetrun.8.gz
 
 %pre
 /usr/sbin/groupadd -r puppet 2>/dev/null || :
