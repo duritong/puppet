@@ -2,7 +2,7 @@ module Puppet
   module Util
     class CommandLine
 
-            LegacyName = Hash.new{|h,k| k}.update(
+      LegacyName = Hash.new{|h,k| k}.update(
         {
         'agent'      => 'puppetd',
         'cert'       => 'puppetca',
@@ -14,6 +14,7 @@ module Puppet
         'resource'   => 'ralsh',
         'kick'       => 'puppetrun',
         'master'     => 'puppetmasterd',
+        'clean'      => 'clean',
         
       })
 
