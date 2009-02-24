@@ -36,7 +36,7 @@ class Puppet::Parser::Scope
     # Is the value true?  This allows us to control the definition of truth
     # in one place.
     def self.true?(value)
-        if value == false or value == "" or value == :undef
+        if value == false or value == "" or value == "false" value == :undef
             return false
         else
             return true
