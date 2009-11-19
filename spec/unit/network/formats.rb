@@ -285,6 +285,10 @@ describe "Puppet Network Format" do
             @pson.weight.should == 10
         end
 
+        it "should always be supported" do
+            @pson.should be_supported(String)
+        end
+
         describe "when supported" do
             it "should render by calling 'to_pson' on the instance" do
                 instance = PsonTest.new("foo")

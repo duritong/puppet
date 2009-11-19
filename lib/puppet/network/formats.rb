@@ -170,4 +170,9 @@ Puppet::Network::FormatHandler.create(:pson, :mime => "text/pson", :weight => 10
         end
         klass.from_pson(data)
     end
+
+    # Everything's supported
+    def supported?(klass)
+        true
+    end
 end
