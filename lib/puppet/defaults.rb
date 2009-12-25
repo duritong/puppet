@@ -86,6 +86,10 @@ module Puppet
         :mkusers => [false,
             "Whether to create the necessary user and group that puppetd will
             run as."],
+        :manage_internal_file_permissions => [true,
+            "Whether Puppet should manage the owner, group, and mode of files 
+            it uses internally"
+            ],
         :path => {:default => "none",
             :desc => "The shell search path.  Defaults to whatever is inherited
                 from the parent process.",
@@ -192,7 +196,10 @@ module Puppet
         :config_version => ["", "How to determine the configuration version.  By default, it will be the
             time that the configuration is parsed, but you can provide a shell script to override how the
             version is determined.  The output of this script will be added to every log message in the
-            reports, allowing you to correlate changes on your hosts to the source version on the server."]
+            reports, allowing you to correlate changes on your hosts to the source version on the server."],
+        :zlib => [true, 
+            "Boolean; whether to use the zlib library",
+        ]
     )
 
     hostname = Facter["hostname"].value
