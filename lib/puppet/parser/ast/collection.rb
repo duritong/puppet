@@ -16,6 +16,7 @@ class Puppet::Parser::AST
       str, code = query && query.safeevaluate(scope)
 
       resource_type = scope.find_resource_type(@type)
+      return unless resource_type
       newcoll = Puppet::Parser::Collector.new(scope, resource_type.name, str, code, self.form)
 
       scope.compiler.add_collection(newcoll)
