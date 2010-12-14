@@ -5,11 +5,11 @@ class Puppet::Application::Master < Puppet::Application
   should_parse_config
   run_mode :master
 
-  option("--debug", "-d")
-  option("--verbose", "-v")
-
   # internal option, only to be used by ext/rack/config.ru
-  option("--rack")
+  option("--rack") do
+    # we set :daemonize to true so we don't log to the console
+    options[:daemonize] = true
+  end
 
   option("--compile host",  "-c host") do |arg|
     options[:node] = arg
@@ -26,6 +26,7 @@ class Puppet::Application::Master < Puppet::Application
   end
 
   def preinit
+    super
     trap(:INT) do
       $stderr.puts "Cancelling startup"
       exit(0)
@@ -118,23 +119,7 @@ class Puppet::Application::Master < Puppet::Application
   end
 
   def setup
-    # Handle the logging settings.
-    if options[:debug] or options[:verbose]
-      if options[:debug]
-        Puppet::Util::Log.level = :debug
-      else
-        Puppet::Util::Log.level = :info
-      end
-
-      unless Puppet[:daemonize] or options[:rack]
-        Puppet::Util::Log.newdestination(:console)
-        options[:setdest] = true
-      end
-    end
-
-    Puppet::Util::Log.newdestination(:syslog) unless options[:setdest]
-
-    exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
+    super
 
     Puppet.settings.use :main, :master, :ssl
 

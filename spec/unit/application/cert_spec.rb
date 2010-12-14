@@ -29,20 +29,6 @@ describe Puppet::Application::Cert do
     end
   end
 
-  it "should set log level to info with the --verbose option" do
-
-    Puppet::Log.expects(:level=).with(:info)
-
-    @cert_app.handle_verbose(0)
-  end
-
-  it "should set log level to debug with the --debug option" do
-
-    Puppet::Log.expects(:level=).with(:debug)
-
-    @cert_app.handle_debug(0)
-  end
-
   it "should set the fingerprint digest with the --digest option" do
     @cert_app.handle_digest(:digest)
 

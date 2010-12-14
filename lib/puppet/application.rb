@@ -246,12 +246,22 @@ class Application
     help
   end
 
+  # Every app responds to --debug and --verbose
+  option("--debug", "-d")
+  option("--verbose", "-v")
+
   def should_parse_config?
     self.class.should_parse_config?
   end
 
   # override to execute code before running anything else
   def preinit
+    {
+      :verbose => false,
+      :debug => false,
+    }.each do |val,key|
+       options[val] = key
+     end
   end
 
   def initialize(command_line = nil)
@@ -297,16 +307,14 @@ class Application
 
   def setup
     # Handle the logging settings
-    if options[:debug] or options[:verbose]
-      Puppet::Util::Log.newdestination(:console)
-      if options[:debug]
-        Puppet::Util::Log.level = :debug
-      else
-        Puppet::Util::Log.level = :info
-      end
+    if options[:debug] || options[:verbose]
+      Puppet::Util::Log.newdestination(:console) unless Puppet[:daemonize]
+      Puppet::Util::Log.level = options[:debug] ? :debug : :info
     end
 
     Puppet::Util::Log.newdestination(:syslog) unless options[:setdest]
+
+    exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
   end
 
   def parse_options

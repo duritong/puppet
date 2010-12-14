@@ -13,7 +13,7 @@ describe Puppet::Application::Apply do
     Puppet::Util::Log.stubs(:level=)
   end
 
-  [:debug,:loadclasses,:verbose,:use_nodes,:detailed_exitcodes].each do |option|
+  [:loadclasses,:use_nodes,:detailed_exitcodes].each do |option|
     it "should declare handle_#{option} method" do
       @apply.should respond_to("handle_#{option}".to_sym)
     end
@@ -79,22 +79,6 @@ describe Puppet::Application::Apply do
 
     it "should set INT trap" do
       @apply.expects(:trap).with(:INT)
-
-      @apply.setup
-    end
-
-    it "should set log level to debug if --debug was passed" do
-      @apply.options.stubs(:[]).with(:debug).returns(true)
-
-      Puppet::Log.expects(:level=).with(:debug)
-
-      @apply.setup
-    end
-
-    it "should set log level to info if --verbose was passed" do
-      @apply.options.stubs(:[]).with(:verbose).returns(true)
-
-      Puppet::Log.expects(:level=).with(:info)
 
       @apply.setup
     end

@@ -73,17 +73,6 @@ describe Puppet::Application::Master do
 
   end
 
-  [:debug,:verbose].each do |option|
-    it "should declare handle_#{option} method" do
-      @master.should respond_to("handle_#{option}".to_sym)
-    end
-
-    it "should store argument value when calling handle_#{option}" do
-      @master.options.expects(:[]=).with(option, 'arg')
-      @master.send("handle_#{option}".to_sym, 'arg')
-    end
-  end
-
   describe "when applying options" do
     before do
       @master.command_line.stubs(:args).returns([])
@@ -99,6 +88,12 @@ describe Puppet::Application::Master do
       @master.options.expects(:[]=).with(:setdest,true)
 
       @master.handle_logdest("console")
+    end
+
+    it "should set :daemonize to true with --rack" do
+      @master.command_line.stubs(:args).returns(%w{--rack})
+      @master.options.expects(:[]=).with(:daemonize,true)
+      @master.parse_options
     end
 
     it "should parse the log destination from ARGV" do
@@ -121,36 +116,6 @@ describe Puppet::Application::Master do
       Puppet.settings.stubs(:use)
 
       @master.options.stubs(:[]).with(any_parameters)
-    end
-
-    it "should set log level to debug if --debug was passed" do
-      @master.options.stubs(:[]).with(:debug).returns(true)
-
-      Puppet::Log.expects(:level=).with(:debug)
-
-      @master.setup
-    end
-
-    it "should set log level to info if --verbose was passed" do
-      @master.options.stubs(:[]).with(:verbose).returns(true)
-
-      Puppet::Log.expects(:level=).with(:info)
-
-      @master.setup
-    end
-
-    it "should set console as the log destination if no --logdest and --daemonize" do
-      @master.stubs(:[]).with(:daemonize).returns(:false)
-
-      Puppet::Log.expects(:newdestination).with(:syslog)
-
-      @master.setup
-    end
-
-    it "should set syslog as the log destination if no --logdest and not --daemonize" do
-      Puppet::Log.expects(:newdestination).with(:syslog)
-
-      @master.setup
     end
 
     it "should set syslog as the log destination if --rack" do

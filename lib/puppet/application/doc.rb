@@ -8,6 +8,7 @@ class Puppet::Application::Doc < Puppet::Application
   attr_accessor :unknown_args, :manifest
 
   def preinit
+    super
     {:references => [], :mode => :text, :format => :to_rest }.each do |name,value|
       options[name] = value
     end
@@ -17,8 +18,6 @@ class Puppet::Application::Doc < Puppet::Application
 
   option("--all","-a")
   option("--outputdir OUTPUTDIR","-o")
-  option("--verbose","-v")
-  option("--debug","-d")
   option("--charset CHARSET")
 
   option("--format FORMAT", "-f") do |arg|
@@ -126,6 +125,7 @@ class Puppet::Application::Doc < Puppet::Application
   end
 
   def setup
+    super
     # sole manifest documentation
     if command_line.args.size > 0
       options[:mode] = :rdoc
@@ -166,16 +166,5 @@ class Puppet::Application::Doc < Puppet::Application
 
     # Now parse the config
     Puppet.parse_config
-
-    # Handle the logging settings.
-    if options[:debug] or options[:verbose]
-      if options[:debug]
-        Puppet::Util::Log.level = :debug
-      else
-        Puppet::Util::Log.level = :info
-      end
-
-      Puppet::Util::Log.newdestination(:console)
-    end
   end
 end

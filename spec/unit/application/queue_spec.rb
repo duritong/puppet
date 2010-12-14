@@ -39,38 +39,12 @@ describe Puppet::Application::Queue do
       @queue.preinit
     end
 
-    it "should init :verbose to false" do
-      @queue.preinit
-
-      @queue.options[:verbose].should be_false
-    end
-
-    it "should init :debug to false" do
-      @queue.preinit
-
-      @queue.options[:debug].should be_false
-    end
-
     it "should create a Daemon instance and copy ARGV to it" do
       ARGV.expects(:dup).returns "eh"
       daemon = mock("daemon")
       daemon.expects(:argv=).with("eh")
       Puppet::Daemon.expects(:new).returns daemon
       @queue.preinit
-    end
-  end
-
-  describe "when handling options" do
-
-    [:debug, :verbose].each do |option|
-      it "should declare handle_#{option} method" do
-        @queue.should respond_to("handle_#{option}".to_sym)
-      end
-
-      it "should store argument value when calling handle_#{option}" do
-        @queue.options.expects(:[]=).with(option, 'arg')
-        @queue.send("handle_#{option}".to_sym, 'arg')
-      end
     end
   end
 
@@ -104,43 +78,6 @@ describe Puppet::Application::Queue do
       Puppet.settings.stubs(:print_configs?).returns(true)
 
       lambda { @queue.setup }.should raise_error(SystemExit)
-    end
-
-    it "should call setup_logs" do
-      @queue.expects(:setup_logs)
-      @queue.setup
-    end
-
-    describe "when setting up logs" do
-      before :each do
-        Puppet::Util::Log.stubs(:newdestination)
-      end
-
-      it "should set log level to debug if --debug was passed" do
-        @queue.options.stubs(:[]).with(:debug).returns(true)
-
-        Puppet::Util::Log.expects(:level=).with(:debug)
-
-        @queue.setup_logs
-      end
-
-      it "should set log level to info if --verbose was passed" do
-        @queue.options.stubs(:[]).with(:verbose).returns(true)
-
-        Puppet::Util::Log.expects(:level=).with(:info)
-
-        @queue.setup_logs
-      end
-
-      [:verbose, :debug].each do |level|
-        it "should set console as the log destination with level #{level}" do
-          @queue.options.stubs(:[]).with(level).returns(true)
-
-          Puppet::Util::Log.expects(:newdestination).with(:console)
-
-          @queue.setup_logs
-        end
-      end
     end
 
     it "should configure the Catalog class to use ActiveRecord" do

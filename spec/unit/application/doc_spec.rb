@@ -56,7 +56,7 @@ describe Puppet::Application::Doc do
   end
 
   describe "when handling options" do
-    [:all, :outputdir, :verbose, :debug, :charset].each do |option|
+    [:all, :outputdir, :charset].each do |option|
       it "should declare handle_#{option} method" do
         @doc.should respond_to("handle_#{option}".to_sym)
       end
@@ -140,7 +140,10 @@ describe Puppet::Application::Doc do
 
     it "should call setup_rdoc in rdoc mode" do
       @doc.options.stubs(:[]).with(:mode).returns(:rdoc)
-
+      # duritong is not sure why this needs to be stubbed as well
+      @doc.options.stubs(:[]).with(:debug)
+      @doc.options.stubs(:[]).with(:verbose)
+      @doc.options.stubs(:[]).with(:setdest)
       @doc.expects(:setup_rdoc)
 
       @doc.setup
@@ -148,7 +151,10 @@ describe Puppet::Application::Doc do
 
     it "should call setup_reference if not rdoc" do
       @doc.options.stubs(:[]).with(:mode).returns(:test)
-
+      # duritong is not sure why this needs to be stubbed as well
+      @doc.options.stubs(:[]).with(:debug)
+      @doc.options.stubs(:[]).with(:verbose)
+      @doc.options.stubs(:[]).with(:setdest)
       @doc.expects(:setup_reference)
 
       @doc.setup
@@ -230,37 +236,6 @@ describe Puppet::Application::Doc do
 
         @doc.setup_rdoc
       end
-
-      it "should set log level to debug if --debug" do
-        @doc.options.stubs(:[]).with(:debug).returns(true)
-        Puppet::Util::Log.expects(:level=).with(:debug)
-
-        @doc.setup_rdoc
-      end
-
-      it "should set log level to info if --verbose" do
-        @doc.options.stubs(:[]).with(:verbose).returns(true)
-        Puppet::Util::Log.expects(:level=).with(:info)
-
-        @doc.setup_rdoc
-      end
-
-      it "should set log destination to console if --verbose" do
-        @doc.options.stubs(:[]).with(:verbose).returns(true)
-
-        Puppet::Util::Log.expects(:newdestination).with(:console)
-
-        @doc.setup_rdoc
-      end
-
-      it "should set log destination to console if --debug" do
-        @doc.options.stubs(:[]).with(:debug).returns(true)
-
-        Puppet::Util::Log.expects(:newdestination).with(:console)
-
-        @doc.setup_rdoc
-      end
-
     end
 
   end

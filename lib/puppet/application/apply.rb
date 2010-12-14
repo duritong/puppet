@@ -4,12 +4,10 @@ class Puppet::Application::Apply < Puppet::Application
 
   should_parse_config
 
-  option("--debug","-d")
   option("--execute EXECUTE","-e") do |arg|
     options[:code] = arg
   end
   option("--loadclasses","-L")
-  option("--verbose","-v")
   option("--use-nodes")
   option("--detailed-exitcodes")
 
@@ -134,7 +132,7 @@ class Puppet::Application::Apply < Puppet::Application
   end
 
   def setup
-    exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
+    super
 
     # If noop is set, then also enable diffs
     Puppet[:show_diff] = true if Puppet[:noop]
@@ -146,12 +144,6 @@ class Puppet::Application::Apply < Puppet::Application
     trap(:INT) do
       $stderr.puts "Exiting"
       exit(1)
-    end
-
-    if options[:debug]
-      Puppet::Util::Log.level = :debug
-    elsif options[:verbose]
-      Puppet::Util::Log.level = :info
     end
   end
 end

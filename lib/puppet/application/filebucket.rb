@@ -5,10 +5,8 @@ class Puppet::Application::Filebucket < Puppet::Application
   should_not_parse_config
 
   option("--bucket BUCKET","-b")
-  option("--debug","-d")
   option("--local","-l")
   option("--remote","-r")
-  option("--verbose","-v")
 
   attr :args
 
@@ -47,6 +45,7 @@ class Puppet::Application::Filebucket < Puppet::Application
   end
 
   def setup
+    super
     Puppet::Log.newdestination(:console)
 
     @client = nil
@@ -57,16 +56,8 @@ class Puppet::Application::Filebucket < Puppet::Application
       exit(1)
     end
 
-    if options[:debug]
-      Puppet::Log.level = :debug
-    elsif options[:verbose]
-      Puppet::Log.level = :info
-    end
-
     # Now parse the config
     Puppet.parse_config
-
-      exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
 
     require 'puppet/file_bucket/dipper'
     begin

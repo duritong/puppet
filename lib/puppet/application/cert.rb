@@ -30,10 +30,6 @@ class Puppet::Application::Cert < Puppet::Application
     @signed = true
   end
 
-  option("--debug", "-d") do |arg|
-    Puppet::Util::Log.level = :debug
-  end
-
   require 'puppet/ssl/certificate_authority/interface'
   Puppet::SSL::CertificateAuthority::Interface::INTERFACE_METHODS.reject {|m| m == :destroy }.each do |method|
     option("--#{method}", "-#{method.to_s[0,1]}") do
@@ -41,9 +37,6 @@ class Puppet::Application::Cert < Puppet::Application
     end
   end
 
-  option("--verbose", "-v") do
-    Puppet::Util::Log.level = :info
-  end
 
   def main
     if @all
@@ -64,7 +57,7 @@ class Puppet::Application::Cert < Puppet::Application
   end
 
   def setup
-    exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
+    super
 
     Puppet::Util::Log.newdestination :console
 

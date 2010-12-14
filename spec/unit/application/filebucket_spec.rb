@@ -26,7 +26,7 @@ describe Puppet::Application::Filebucket do
     @filebucket.should respond_to(:restore)
   end
 
-  [:bucket, :debug, :local, :remote, :verbose].each do |option|
+  [:bucket, :local, :remote].each do |option|
     it "should declare handle_#{option} method" do
       @filebucket.should respond_to("handle_#{option}".to_sym)
     end
@@ -57,22 +57,6 @@ describe Puppet::Application::Filebucket do
 
     it "should trap INT" do
       @filebucket.expects(:trap).with(:INT)
-
-      @filebucket.setup
-    end
-
-    it "should set log level to debug if --debug was passed" do
-      @filebucket.options.stubs(:[]).with(:debug).returns(true)
-
-      Puppet::Log.expects(:level=).with(:debug)
-
-      @filebucket.setup
-    end
-
-    it "should set log level to info if --verbose was passed" do
-      @filebucket.options.stubs(:[]).with(:verbose).returns(true)
-
-      Puppet::Log.expects(:level=).with(:info)
 
       @filebucket.setup
     end

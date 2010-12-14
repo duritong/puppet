@@ -8,7 +8,6 @@ class Puppet::Application::Kick < Puppet::Application
 
   option("--all","-a")
   option("--foreground","-f")
-  option("--debug","-d")
   option("--ping","-P")
   option("--test")
 
@@ -150,6 +149,7 @@ class Puppet::Application::Kick < Puppet::Application
   end
 
   def preinit
+    super
     [:INT, :TERM].each do |signal|
       trap(signal) do
         $stderr.puts "Cancelling"
@@ -164,12 +164,7 @@ class Puppet::Application::Kick < Puppet::Application
   end
 
   def setup
-    if options[:debug]
-      Puppet::Util::Log.level = :debug
-    else
-      Puppet::Util::Log.level = :info
-    end
-
+    super
     # Now parse the config
     Puppet.parse_config
 

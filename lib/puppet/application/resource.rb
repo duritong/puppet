@@ -7,13 +7,12 @@ class Puppet::Application::Resource < Puppet::Application
   attr_accessor :host, :extra_params
 
   def preinit
+    super
     @extra_params = []
     @host = nil
     Facter.loadfacts
   end
 
-  option("--debug","-d")
-  option("--verbose","-v")
   option("--edit","-e")
 
   option("--host HOST","-H") do |arg|
@@ -104,15 +103,10 @@ class Puppet::Application::Resource < Puppet::Application
   end
 
   def setup
+    super
     Puppet::Util::Log.newdestination(:console)
 
     # Now parse the config
     Puppet.parse_config
-
-    if options[:debug]
-      Puppet::Util::Log.level = :debug
-    elsif options[:verbose]
-      Puppet::Util::Log.level = :info
-    end
   end
 end

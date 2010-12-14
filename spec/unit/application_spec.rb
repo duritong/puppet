@@ -245,6 +245,18 @@ describe Puppet::Application do
       end
     end
 
+    describe "when handling options" do
+      before do
+        @app.command_line.stubs(:args).returns([])
+      end
+
+      [:debug, :verbose].each do |option|
+        it "should declare handle_#{option} method" do
+          @app.should respond_to("handle_#{option}".to_sym)
+        end
+      end
+    end
+
     describe "when dealing with an argument not declared directly by the application" do
       it "should pass it to handle_unknown if this method exists" do
         Puppet.settings.stubs(:optparse_addargs).returns([["--not-handled", :REQUIRED]])
@@ -312,17 +324,7 @@ describe Puppet::Application do
     before :each do
       @app.stubs(:should_parse_config?).returns(false)
       @app.options.stubs(:[])
-    end
-
-    [ :debug, :verbose ].each do |level|
-      it "should honor option #{level}" do
-        @app.options.stubs(:[]).with(level).returns(true)
-        Puppet::Util::Log.stubs(:newdestination)
-
-        Puppet::Util::Log.expects(:level=).with(level == :verbose ? :info : :debug)
-
-        @app.setup
-      end
+      Puppet::Util::Log.stubs(:newdestination)
     end
 
     it "should honor setdest option" do
@@ -333,6 +335,46 @@ describe Puppet::Application do
       @app.setup
     end
 
+    { :debug => :debug, :verbose => :info }.each do |opt,level|
+      it "should set log level to #{opt} if --#{opt} was passed" do
+        @app.options.stubs(:[]).with(opt).returns(true)
+        Puppet::Util::Log.expects(:level=).with(level)
+
+        @app.setup
+      end
+
+      it "should not set console as the log destination with level #{level} if daemonized" do
+        @app.options.stubs(:[]).with(level).returns(true)
+        Puppet.stubs(:[]).with(:daemonize).returns(true)
+        Puppet::Util::Log.expects(:newdestination).with(:console).never
+
+        @app.setup
+      end
+      it "should set console as the log destination with level #{level} if not daemonized" do
+        @app.options.stubs(:[]).with(level).returns(true)
+        Puppet.stubs(:[]).with(:daemonize).returns(false)
+        Puppet::Util::Log.expects(:newdestination).with(:console).never
+
+        @app.setup
+      end
+    end
+
+    it "should set syslog as the log destination if no --logdest" do
+      @app.options.stubs(:[]).with(:setdest).returns(false)
+      Puppet::Util::Log.expects(:newdestination).with(:syslog)
+
+      @app.setup
+    end
+  end
+
+  describe "when calling preinit" do
+    [:debug,:verbose].each do |opt|
+      it "should init :#{opt} to false" do
+        @app.preinit
+
+        @app.options[opt].should be_false
+      end
+    end
   end
 
   describe "when running" do

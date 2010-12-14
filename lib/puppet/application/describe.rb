@@ -181,6 +181,7 @@ class Puppet::Application::Describe < Puppet::Application
   option("--meta","-m")
 
   def preinit
+    super
     options[:parameters] = true
   end
 
@@ -195,6 +196,7 @@ class Puppet::Application::Describe < Puppet::Application
   end
 
   def setup
+    super
     options[:types] = command_line.args.dup
     handle_help(nil) unless options[:list] || options[:types].size > 0
     $stderr.puts "Warning: ignoring types when listing all types" if options[:list] && options[:types].size > 0

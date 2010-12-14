@@ -96,7 +96,7 @@ describe Puppet::Application::Agent do
       @puppetd.command_line.stubs(:args).returns([])
     end
 
-    [:centrallogging, :disable, :enable, :debug, :fqdn, :test, :verbose, :digest].each do |option|
+    [:centrallogging, :disable, :enable, :fqdn, :test, :digest].each do |option|
       it "should declare handle_#{option} method" do
         @puppetd.should respond_to("handle_#{option}".to_sym)
       end
@@ -215,52 +215,6 @@ describe Puppet::Application::Agent do
         @puppetd.options.expects(:[]=).with(:detailed_exitcodes,true)
         @puppetd.setup_test
       end
-    end
-
-    it "should call setup_logs" do
-      @puppetd.expects(:setup_logs)
-      @puppetd.setup
-    end
-
-    describe "when setting up logs" do
-      before :each do
-        Puppet::Util::Log.stubs(:newdestination)
-      end
-
-      it "should set log level to debug if --debug was passed" do
-        @puppetd.options.stubs(:[]).with(:debug).returns(true)
-
-        Puppet::Util::Log.expects(:level=).with(:debug)
-
-        @puppetd.setup_logs
-      end
-
-      it "should set log level to info if --verbose was passed" do
-        @puppetd.options.stubs(:[]).with(:verbose).returns(true)
-
-        Puppet::Util::Log.expects(:level=).with(:info)
-
-        @puppetd.setup_logs
-      end
-
-      [:verbose, :debug].each do |level|
-        it "should set console as the log destination with level #{level}" do
-          @puppetd.options.stubs(:[]).with(level).returns(true)
-
-          Puppet::Util::Log.expects(:newdestination).with(:console)
-
-          @puppetd.setup_logs
-        end
-      end
-
-      it "should set syslog as the log destination if no --logdest" do
-        @puppetd.options.stubs(:[]).with(:setdest).returns(false)
-
-        Puppet::Util::Log.expects(:newdestination).with(:syslog)
-
-        @puppetd.setup_logs
-      end
-
     end
 
     it "should print puppet config if asked to in Puppet config" do

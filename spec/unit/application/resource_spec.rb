@@ -57,15 +57,13 @@ describe Puppet::Application::Resource do
 
   describe "when handling options" do
 
-    [:debug, :verbose, :edit].each do |option|
-      it "should declare handle_#{option} method" do
-        @resource.should respond_to("handle_#{option}".to_sym)
-      end
+    it "should declare handle_edit method" do
+      @resource.should respond_to("handle_edit".to_sym)
+    end
 
-      it "should store argument value when calling handle_#{option}" do
-        @resource.options.expects(:[]=).with(option, 'arg')
-        @resource.send("handle_#{option}".to_sym, 'arg')
-      end
+    it "should store argument value when calling handle_edit" do
+      @resource.options.expects(:[]=).with(:edit, 'arg')
+      @resource.send("handle_edit".to_sym, 'arg')
     end
 
     it "should set options[:host] to given host" do
@@ -103,23 +101,6 @@ describe Puppet::Application::Resource do
 
     it "should set console as the log destination" do
       Puppet::Log.expects(:newdestination).with(:console)
-
-      @resource.setup
-    end
-
-    it "should set log level to debug if --debug was passed" do
-      @resource.options.stubs(:[]).with(:debug).returns(true)
-
-      Puppet::Log.expects(:level=).with(:debug)
-
-      @resource.setup
-    end
-
-    it "should set log level to info if --verbose was passed" do
-      @resource.options.stubs(:[]).with(:debug).returns(false)
-      @resource.options.stubs(:[]).with(:verbose).returns(true)
-
-      Puppet::Log.expects(:level=).with(:info)
 
       @resource.setup
     end

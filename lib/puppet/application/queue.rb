@@ -25,17 +25,7 @@ class Puppet::Application::Queue < Puppet::Application
       $stderr.puts "Caught SIGTERM; shutting down"
       exit(0)
     end
-
-    {
-      :verbose => false,
-      :debug => false
-    }.each do |opt,val|
-      options[opt] = val
-    end
   end
-
-  option("--debug","-d")
-  option("--verbose","-v")
 
   def main
     require 'puppet/indirector/catalog/queue' # provides Puppet::Indirector::Queue.subscribe
@@ -57,26 +47,12 @@ class Puppet::Application::Queue < Puppet::Application
     Thread.list.each { |thread| thread.join }
   end
 
-  # Handle the logging settings.
-  def setup_logs
-    if options[:debug] or options[:verbose]
-      Puppet::Util::Log.newdestination(:console)
-      if options[:debug]
-        Puppet::Util::Log.level = :debug
-      else
-        Puppet::Util::Log.level = :info
-      end
-    end
-  end
-
   def setup
     unless Puppet.features.stomp?
       raise ArgumentError, "Could not load the 'stomp' library, which must be present for queueing to work.  You must install the required library."
     end
 
-    setup_logs
-
-    exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
+    super
 
     require 'puppet/resource/catalog'
     Puppet::Resource::Catalog.terminus_class = :active_record

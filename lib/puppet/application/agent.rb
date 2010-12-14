@@ -8,6 +8,7 @@ class Puppet::Application::Agent < Puppet::Application
   attr_accessor :args, :agent, :daemon, :host
 
   def preinit
+    super
     # Do an initial trap, so that cancels don't get a stack trace.
     trap(:INT) do
       $stderr.puts "Cancelling startup"
@@ -17,8 +18,6 @@ class Puppet::Application::Agent < Puppet::Application
     {
       :waitforcert => nil,
       :detailed_exitcodes => false,
-      :verbose => false,
-      :debug => false,
       :centrallogs => false,
       :setdest => false,
       :enable => false,
@@ -41,10 +40,8 @@ class Puppet::Application::Agent < Puppet::Application
   option("--centrallogging")
   option("--disable")
   option("--enable")
-  option("--debug","-d")
   option("--fqdn FQDN","-f")
   option("--test","-t")
-  option("--verbose","-v")
 
   option("--fingerprint")
   option("--digest DIGEST")
@@ -144,20 +141,6 @@ class Puppet::Application::Agent < Puppet::Application
     options[:detailed_exitcodes] = true
   end
 
-  # Handle the logging settings.
-  def setup_logs
-    if options[:debug] or options[:verbose]
-      Puppet::Util::Log.newdestination(:console)
-      if options[:debug]
-        Puppet::Util::Log.level = :debug
-      else
-        Puppet::Util::Log.level = :info
-      end
-    end
-
-    Puppet::Util::Log.newdestination(:syslog) unless options[:setdest]
-  end
-
   def enable_disable_client(agent)
     if options[:enable]
       agent.enable
@@ -196,10 +179,7 @@ class Puppet::Application::Agent < Puppet::Application
 
   def setup
     setup_test if options[:test]
-
-    setup_logs
-
-    exit(Puppet.settings.print_configs ? 0 : 1) if Puppet.settings.print_configs?
+    super
 
     # If noop is set, then also enable diffs
     Puppet[:show_diff] = true if Puppet[:noop]
