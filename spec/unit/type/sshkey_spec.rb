@@ -5,17 +5,17 @@ require 'spec_helper'
 describe Puppet::Type.type(:sshkey) do
 
   it "uses :name as its namevar" do
-    expect(described_class.key_attributes).to eq [:name]
+    expect(described_class.key_attributes).to eq [:type, :name]
   end
 
   describe "when validating attributes" do
-    [:name, :provider].each do |param|
+    [:type, :name, :provider].each do |param|
       it "has a #{param} parameter" do
         expect(described_class.attrtype(param)).to eq :param
       end
     end
 
-    [:host_aliases, :ensure, :key, :type].each do |property|
+    [:host_aliases, :ensure, :key].each do |property|
       it "has a #{property} property" do
         expect(described_class.attrtype(property)).to eq :property
       end

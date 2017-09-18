@@ -8,14 +8,26 @@ module Puppet
 
     ensurable
 
-    newproperty(:type) do
+    newparam(:type) do
       desc "The encryption type used.  Probably ssh-dss or ssh-rsa."
 
-      newvalues :'ssh-dss', :'ssh-ed25519', :'ssh-rsa', :'ecdsa-sha2-nistp256', :'ecdsa-sha2-nistp384', :'ecdsa-sha2-nistp521'
+      newvalues :'ssh-dss', :'ssh-ed25519', :'ssh-rsa', :'ecdsa-sha2-nistp256', :'ecdsa-sha2-nistp384', :'ecdsa-sha2-nistp521',
+        :dsa, :ed25519, :rsa
 
-      aliasvalue(:dsa, :'ssh-dss')
-      aliasvalue(:ed25519, :'ssh-ed25519')
-      aliasvalue(:rsa, :'ssh-rsa')
+      munge do |value|
+        case value
+        when :dsa
+          :'ssh-dss'
+        when :ed25519
+          :'ssh-ed25519'
+        when :rsa
+          :'ssh-rsa'
+        else
+          super(value)
+        end
+      end
+
+      isnamevar
     end
 
     newproperty(:key) do
@@ -66,6 +78,19 @@ module Puppet
         raise Puppet::Error, _("Resourcename cannot include whitespaces") if value =~ /\s/
         raise Puppet::Error, _("No comma in resourcename allowed. If you want to specify aliases use the host_aliases property") if value.include?(',')
       end
+    end
+
+    # Allow sshkey{'myhost@ssh-rsa': } to automatically
+    # match name and type
+    def self.title_patterns
+      [
+        [ /^(.+)@(.+)$/,
+          [ [:name], [:type] ]
+        ],
+        [ /(.*)/m,
+          [ [:name] ]
+        ]
+      ]
     end
 
     newproperty(:target) do
